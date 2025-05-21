@@ -1,23 +1,20 @@
-import logo from './logo.svg';
 import './App.css';
+import BpmnEditor from './BpmnEditor';
+import { saveAs } from 'file-saver';
+import 'bpmn-js/dist/assets/diagram-js.css';
+import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
+import '@bpmn-io/properties-panel/dist/assets/properties-panel.css';
+
 
 function App() {
+  const handleDownload = (blob) => {
+    saveAs(blob, 'diagram.bpmn');
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Camunda Web Modeler</h1>
+      <BpmnEditor/>
     </div>
   );
 }
