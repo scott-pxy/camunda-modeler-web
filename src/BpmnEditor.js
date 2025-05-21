@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import BpmnModeler from 'bpmn-js/lib/Modeler';
+// import BpmnModeler from 'bpmn-js/lib/Modeler';
+import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler';
 
 import {
   BpmnPropertiesPanelModule,
