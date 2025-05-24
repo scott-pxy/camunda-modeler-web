@@ -57,6 +57,13 @@ const SideNavigation = () => {
   };
 
   const handleMenuClick = ({ key }) => {
+    // 如果是编辑器页面需要特殊处理
+  if (key.startsWith('/bpmn/editor')) {
+    addTab({
+      key,
+      label: '新流程 (加载中...)'
+    });
+  }
     // 根据路由配置获取标签名称
     const tabConfig = navigationItems.find(item => 
       item.key === key || item.children?.some(child => child.key === key)

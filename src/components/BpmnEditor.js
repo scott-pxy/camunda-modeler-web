@@ -1,6 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // import BpmnModeler from 'bpmn-js/lib/Modeler';
 import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler';
+import { useTabs } from '../context/TabsContext';
+import { Button,message,Card } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 
 import {
   BpmnPropertiesPanelModule,
@@ -11,6 +14,9 @@ import {
 import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json';
 
 const BpmnEditor = () => {
+
+  const [xml, setXml] = useState('');
+
   useEffect(() => {
     const modeler = new BpmnModeler({
       container: '#js-canvas',
@@ -50,17 +56,78 @@ const BpmnEditor = () => {
       console.error('Failed to import diagram:', err);
     });
 
+    // return () => {
+    //   modeler.destroy();
+    // };
     return () => {
+      // 确保组件卸载时销毁实例
       modeler.destroy();
+      const canvas = document.getElementById('js-canvas');
+      if (canvas) canvas.innerHTML = '';
     };
   }, []);
 
+  const handleSave = () => {
+    localStorage.setItem('bpmn_draft', xml);
+    message.success('已保存到本地');
+  };
+
+
   return (
-    <div style={{ display: 'flex' }}>
-      <div id="js-canvas" style={{ width: 'calc(100% - 300px)', height: '100vh' }}></div>
-      <div id="js-properties-panel" style={{ width: '300px', height: '100vh', overflow: 'auto', borderLeft: '1px solid #ccc' }}></div>
+  <div style={{ 
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh', // 必须设置外层高度
+    overflow: 'hidden' // 防止滚动条
+  }}>
+    {/* 顶部工具栏 */}
+    <div style={{
+      padding: '12px 24px',
+      background: '#fff',
+      borderBottom: '1px solid #e8e8e8',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      zIndex: 1000,
+      flexShrink: 0 // 固定高度
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <Button type="primary" onClick={handleSave}>保存</Button>
+        <Button>导出</Button>
+        <Button>预览</Button>
+      </div>
     </div>
-  );
+
+    {/* 主内容区 */}
+    <div style={{
+      flex: 1,
+      display: 'flex',
+      position: 'relative',
+      background: '#fafafa' // 添加备用背景色
+    }}>
+      {/* 画布容器 */}
+      <div 
+        id="js-canvas"
+        style={{ 
+          flex: 1,
+          height: '100%',
+          minWidth: 600,
+          background: '#fff' // 强制白色背景
+        }}
+      />
+
+      {/* 属性面板 */}
+      <div 
+        id="js-properties-panel"
+        style={{ 
+          width: 300,
+          height: '100%',
+          borderLeft: '1px solid #e8e8e8',
+          background: '#fff',
+          overflow: 'auto'
+        }}
+      />
+    </div>
+  </div>
+);
 };
 
 export default BpmnEditor;
