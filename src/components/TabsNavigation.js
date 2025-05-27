@@ -34,12 +34,13 @@ const TabNavigation = () => {
   const onEdit = (targetKey, action) => {
     if (action === 'remove') {
       // 获取当前完整路径（包含查询参数）
-      const currentPath = location.pathname + location.search;
+      // const currentPath = location.pathname + location.search;
       
       removeTab(targetKey);
 
       // 如果关闭的是当前活动页签
-      if (targetKey === currentPath) {
+      // if (targetKey === currentPath) {
+      if (targetKey === activeKey) {
         const remainingTabs = tabs.filter(t => t.key !== targetKey);
         const newPath = remainingTabs.length > 0 
           ? remainingTabs[remainingTabs.length - 1].key 

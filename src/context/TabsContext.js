@@ -6,10 +6,23 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const TabsContext = createContext();
 
 export function TabsProvider({ children }) {
-  const [tabs, setTabs] = useState([]);
-  const [activeKey, setActiveKey] = useState('');
+  const [tabs, setTabs] = useState(() => {
+    // 初始化时从 localStorage 读取
+    const savedTabs = localStorage.getItem('tabs');
+    return savedTabs ? JSON.parse(savedTabs) : [];
+  });
+  const [activeKey, setActiveKey] = useState(() => {
+    return localStorage.getItem('activeKey') || '';
+  });
   const location = useLocation();
 
+  // 持久化状态到localStorage
+  useEffect(() => {
+    localStorage.setItem('tabs', JSON.stringify(tabs));
+    localStorage.setItem('activeKey', activeKey);
+  }, [tabs, activeKey]);
+
+  // 自动增加页签
   useEffect(() => {
     const currentKey = location.pathname + location.search;
     const existTab = tabs.find(tab => tab.key === currentKey);
@@ -17,12 +30,19 @@ export function TabsProvider({ children }) {
     if (!existTab && currentKey !== '/') {
       addTab({
         key: currentKey,
-        label: currentKey.includes('editor') ? '流程图' : '未命名'
+        label: getTabLabel(currentKey),
+        closable: true
       });
     }
 
     setActiveKey(currentKey); // <--- 关键：同步 activeKey
   }, [location]);
+
+  const getTabLabel = (path) => {
+    if (path.includes('editor')) return '流程图';
+    if (path.includes('manage')) return '管理页';
+    return '未命名';
+  };
 
   const addTab = (newTab) => {
     setTabs(prev => {
