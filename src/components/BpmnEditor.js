@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
-// import BpmnModeler from 'bpmn-js/lib/Modeler';
+import React, { useEffect, useState, useRef } from 'react';
 import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler';
-import { useTabs } from '../context/TabsContext';
-import { Button,message,Card } from 'antd';
+import { processAPI } from '../services/bpmnProcessApi'
+import { Button,message,} from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 
 import {
@@ -16,6 +15,7 @@ import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json'
 const BpmnEditor = () => {
 
   const [xml, setXml] = useState('');
+  const modelerRef = useRef(null);
 
   useEffect(() => {
     const modeler = new BpmnModeler({
@@ -32,6 +32,9 @@ const BpmnEditor = () => {
         camunda: camundaModdleDescriptor
       }
     });
+
+    modelerRef.current = modeler; // 存到引用中
+
 
     const initialDiagram = `<?xml version="1.0" encoding="UTF-8"?>
     <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -67,9 +70,33 @@ const BpmnEditor = () => {
     };
   }, []);
 
-  const handleSave = () => {
-    localStorage.setItem('bpmn_draft', xml);
-    message.success('已保存到本地');
+  const handleSave = async () => {
+    // localStorage.setItem('bpmn_draft', xml);
+    // message.success('已保存到本地');
+    try {
+      const { xml } = await modelerRef.current.saveXML({ format: true });
+
+      // 构建发送给后端的数据
+      const payload = {
+        id: 1, // 创建时可不传或由后端生成
+        name: '示例流程',
+        category: '默认分类',
+        systemId: 'system-001',
+        systemName: '审批系统',
+        version: 1,
+        createdBy: 'admin', // 或从登录信息中获取
+        createdAt: new Date(),
+        lastUpdated: new Date(),
+        isDeployed: 0,
+        bpmnContent: xml
+      };
+
+      await processAPI.create(payload);
+      message.success('保存成功');
+    } catch (err) {
+      console.error('保存失败:', err);
+      message.error('保存失败');
+    }
   };
 
 

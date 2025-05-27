@@ -2,6 +2,7 @@
   "name": "camunda-modeler-web",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "@bpmn-io/properties-panel": "^3.27.0",
